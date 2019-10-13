@@ -86,7 +86,7 @@ podTemplate(
 			// Jenkins workspace
 			script {
 			  openshift.withCluster() {
-				openshift.withProject("${devProject}") {
+				openshift.withProject("${GUID}-tasks-dev") {
 				  openshift.selector("bc", "tasks").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
 
 				  // OR use the file you just published into Nexus:
@@ -107,12 +107,12 @@ podTemplate(
 			script {
 			  // Update the Image on the Development Deployment Config
 			  openshift.withCluster() {
-				openshift.withProject("${devProject}") {
+				openshift.withProject("${GUID}-tasks-dev") {
 				  // OpenShift 4
 				  //openshift.set("image", "dc/tasks", "tasks=image-registry.openshift-image-registry.svc:5000/${devProject}/tasks:${devTag}")
 
 				  // For OpenShift 3 use this:
-				  openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
+				  openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${GUID}-tasks-dev/tasks:${devTag}")
 
 				  // Update the Config Map which contains the users for the Tasks application
 				  // (just in case the properties files changed in the latest commit)
@@ -155,8 +155,8 @@ podTemplate(
 
 				  // Tag the built image with the production tag.
 				  openshift.withCluster() {
-					openshift.withProject("${prodProject}") {
-					  openshift.tag("${devProject}/tasks:${devTag}", "${devProject}/tasks:${prodTag}")
+					openshift.withProject("${GUID}-tasks-prod") {
+					  openshift.tag("${GUID}-tasks-dev/tasks:${devTag}", "${GUID}-tasks-dev/tasks:${prodTag}")
 					}
 				  }
 				}
@@ -177,7 +177,7 @@ podTemplate(
 				echo "Blue/Green Deployment"
 				script {
 				  openshift.withCluster() {
-					openshift.withProject("${prodProject}") {
+					openshift.withProject("${GUID}-tasks-prod") {
 					  activeApp = openshift.selector("route", "tasks").object().spec.to.name
 					  if (activeApp == "tasks-green") {
 						destApp = "tasks-blue"
@@ -191,7 +191,7 @@ podTemplate(
 					  // OpenShift 4
 					  //dc.spec.template.spec.containers[0].image="image-registry.openshift-image-registry.svc:5000/${devProject}/tasks:${prodTag}"
 					  // OpenShift 3
-					  dc.spec.template.spec.containers[0].image="docker-registry.default.svc:5000/${devProject}/tasks:${prodTag}"
+					  dc.spec.template.spec.containers[0].image="docker-registry.default.svc:5000/${GUID}-tasks-dev/tasks:${prodTag}"
 
 					  openshift.apply(dc)
 
@@ -228,7 +228,7 @@ podTemplate(
 			echo "Switching Production application to ${destApp}."
 			script {
 			  openshift.withCluster() {
-				openshift.withProject("${prodProject}") {
+				openshift.withProject("${GUID}-tasks-prod") {
 				  def route = openshift.selector("route/tasks").object()
 				  route.spec.to.name="${destApp}"
 				  openshift.apply(route)
