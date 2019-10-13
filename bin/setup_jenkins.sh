@@ -35,7 +35,7 @@ items:
       type: "Git"
       git:
         uri: "https://github.com/eporras28/homeworkAdvDev"
-	contextDir: openshift-tasks
+      contextDir: "openshift-tasks"
     strategy:
       type: "JenkinsPipeline"
       jenkinsPipelineStrategy:
@@ -46,6 +46,7 @@ items:
           value: $CLUSTER
         - name: GUID
           value: $GUID
+	jenkinsfilePath: Jenkinsfile
 kind: List
 metadata: []" | oc create -f - -n ${GUID}-jenkins
 
