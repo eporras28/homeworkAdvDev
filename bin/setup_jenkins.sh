@@ -32,21 +32,21 @@ items:
     name: "tasks-pipeline"
   spec:
     source:
+      contextDir: "openshift-tasks"
       type: "Git"
       git:
-        uri: "https://github.com/eporras28/homeworkAdvDev"
-      contextDir: "openshift-tasks"
+        uri: ${REPO}
     strategy:
       type: "JenkinsPipeline"
       jenkinsPipelineStrategy:
-	env:
-        - name: REPO
-          value: $REPO
-        - name: CLUSTER
-          value: $CLUSTER
-        - name: GUID
-          value: $GUID
-	jenkinsfilePath: Jenkinsfile
+        env:
+        - name: "GUID"
+          value: \"${GUID}\"
+        - name: "REPO"
+          value: \"${REPO}\"
+        - name: "CLUSTER"
+          value: \"${CLUSTER}\"
+        jenkinsfilePath: Jenkinsfile
 kind: List
 metadata: []" | oc create -f - -n ${GUID}-jenkins
 
