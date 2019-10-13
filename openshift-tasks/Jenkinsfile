@@ -59,28 +59,26 @@ podTemplate(
       // Using Maven to call SonarQube for Code Analysis
       stage('Code Analysis') {
         echo "Running Code Analysis"
-		steps {
-			script {
+
 			  echo "Running Code Analysis"
 				sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube-gpte-hw-cicd.apps.na311.openshift.opentlc.com/ -Dsonar.projectName=${JOB_BASE_NAME} -Dsonar.projectVersion=${devTag}"
-			}
-		  }
+
         // TBD: Execute Sonarqube Tests
       }
 
       // Publish the built war file to Nexus
       stage('Publish to Nexus') {
         //echo "Publish to Nexus"
-		steps {
+
 			echo "Publish to Nexus"
 			  sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3.gpte-hw-cicd.svc.cluster.local:8081/repository/releases"
-		  }
+
         // TBD: Publish to Nexus
       }
 
       // Build the OpenShift Image in OpenShift and tag it.
       stage('Build and Tag OpenShift Image') {
-        steps {
+
 			echo "Building OpenShift container image tasks:${devTag}"
 
 			// Start Binary Build in OpenShift using the file we just published
@@ -97,14 +95,14 @@ podTemplate(
 				}
 			  }
 			}
-		  }
+
 		
         // TBD: Build Image, tag Image
       }
 
       // Deploy the built image to the Development Environment.
       stage('Deploy to Dev') {
-		  steps {
+
 			echo "Deploying container image to Development Project"
 			script {
 			  // Update the Image on the Development Deployment Config
@@ -137,7 +135,7 @@ podTemplate(
 				}
 			  }
 			}
-		  }
+
 		
         // TBD: Deploy to development Project
         //      Set Image, Set VERSION
@@ -146,7 +144,7 @@ podTemplate(
 
       // Copy Image to Nexus container registry
       stage('Copy Image to Nexus container registry') {
-		   steps {
+
 				echo "Copy image to Nexus Docker Registry"
 				script {
 				  // OpenShift 4
@@ -162,7 +160,7 @@ podTemplate(
 					}
 				  }
 				}
-			  }
+		
 
         // TBD: Copy image to Nexus container registry
 
@@ -175,7 +173,7 @@ podTemplate(
       def activeApp = ""
 
       stage('Blue/Green Production Deployment') {
-		  steps {
+
 				echo "Blue/Green Deployment"
 				script {
 				  openshift.withCluster() {
@@ -216,7 +214,7 @@ podTemplate(
 					}
 				  }
 				}
-			  }
+
         // TBD: Determine which application is active
         //      Set Image, Set VERSION
         //      Deploy into the other application
@@ -224,7 +222,7 @@ podTemplate(
       }
 
       stage('Switch over to new Version') {
-	   steps {
+
 			input "Switch Production?"
 
 			echo "Switching Production application to ${destApp}."
@@ -241,7 +239,7 @@ podTemplate(
         // TBD: Execute switch
       }
     }
-  }
+
 }
 
 // Convenience Functions to read version from the pom.xml
