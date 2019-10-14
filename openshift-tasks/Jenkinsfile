@@ -14,10 +14,18 @@ podTemplate(
     )
   ]
 ) {
+ 
+  def mvnCmd      = "mvn -s ../nexus_settings.xml"
+  def version     = ""
+  def devTag      = "0.0-0"
+  def prodTag     = "0.0"
+  def destApp     = "tasks-green"
+  def activeApp   = ""
+	
   node('skopeo-pod') {
     // Define Maven Command to point to the correct
     // settings for our Nexus installation
-    def mvnCmd = "mvn -s ../nexus_settings.xml"
+    //def mvnCmd = "mvn -s ../nexus_settings.xml"
 
     // Checkout Source Code.
     stage('Checkout Source') {
@@ -30,14 +38,14 @@ podTemplate(
       // and not inside the scope of a stage - otherwise they would not
       // be accessible from other stages.
       // Extract version from the pom.xml
-	  def pom = readMavenPom file: 'pom.xml'
-      def version = pom.version
+      def pom = readMavenPom file: 'pom.xml'
+      version = pom.version
       //def version = getVersionFromPom("pom.xml")
 
       // TBD Set the tag for the development image: version + build number
-      def devTag  = "${version}-" + currentBuild.number
+      devTag  = "${version}-" + currentBuild.number
       // Set the tag for the production image: version
-      def prodTag = "${version}"
+      prodTag = "${version}"
 
       // Using Maven build the war file
       // Do not run tests in this step
@@ -169,8 +177,6 @@ podTemplate(
 
       // Blue/Green Deployment into Production
       // -------------------------------------
-      def destApp   = "tasks-green"
-      def activeApp = ""
 
       stage('Blue/Green Production Deployment') {
 
