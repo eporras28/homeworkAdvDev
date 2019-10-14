@@ -174,7 +174,25 @@ podTemplate(
 
         // TBD: Tag the built image with the production tag.
       }
-
+      // EP: Test deployment to dev
+      // --------------------------
+stage('Test Tasks in Dev -EP-') {
+      steps {
+        echo "Testing Tasks Dev Application"
+        script {
+          def devTasksRoute = sh(returnStdout: true, script: "curl tasks-${GUID}-tasks-dev.apps.${CLUSTER}").trim()
+          // Check if the returned string contains "tasks-dev"
+          if (devTasksRoute.contains("tasks-dev")) {
+            echo "*** tasks-dev validated successfully."
+          }
+          else {
+	   // echo devTasksRoute;
+	    error("*** ${devTaskRoute} tasks-dev returned unexpected name.")
+          }
+        }
+      }
+    }
+	    
       // Blue/Green Deployment into Production
       // -------------------------------------
 
