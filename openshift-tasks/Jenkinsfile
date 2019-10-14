@@ -179,7 +179,6 @@ podTemplate(
 stage('Test Tasks in Dev -EP-') {
       steps {
         echo "Testing Tasks Dev Application"
-        script {
           def devTasksRoute = sh(returnStdout: true, script: "curl tasks-${GUID}-tasks-dev.apps.${CLUSTER}").trim()
           // Check if the returned string contains "tasks-dev"
           if (devTasksRoute.contains("tasks-dev")) {
@@ -190,7 +189,7 @@ stage('Test Tasks in Dev -EP-') {
 	    error("*** ${devTaskRoute} tasks-dev returned unexpected name.")
           }
         }
-      }
+      
     }
 	    
       // Blue/Green Deployment into Production
